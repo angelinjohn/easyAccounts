@@ -3,15 +3,19 @@ from app import app
 from db_config import mysql
 from flask import jsonify
 from flask import flash, request
+from flask_cors import CORS, cross_origin
 from werkzeug import generate_password_hash, check_password_hash
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 		
-@app.route('/add', methods=['POST'])
+@app.route('/register', methods=['POST'])
+@cross_origin()
 def add_user():
 	try:
 		_json = request.json
 		_name = _json['name']
 		_email = _json['email']
-		_password = _json['pwd']
+		_password = _json['password']
 		# validate the received values
 		if _name and _email and _password and request.method == 'POST':
 			#do not save password as a plain text
@@ -35,6 +39,7 @@ def add_user():
 		conn.close()
 		
 @app.route('/users')
+@cross_origin()
 def users():
 	try:
 		conn = mysql.connect()
