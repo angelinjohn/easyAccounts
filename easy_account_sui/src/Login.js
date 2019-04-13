@@ -4,7 +4,7 @@ import AppBar from 'material-ui/AppBar';
 import RaisedButton from 'material-ui/RaisedButton';
 import axios from 'axios';
 import TextField from 'material-ui/TextField';
-import UploadScreen from './UploadScreen';
+import SimpleTable from './SimpleTable';
 class Login extends Component {
     constructor(props) {
         super(props);
@@ -26,7 +26,7 @@ class Login extends Component {
                 if (response.status == 200) {
                     console.log("Login successfull");
                     var uploadScreen = [];
-                    uploadScreen.push(<UploadScreen appContext={self.props.appContext} />)
+                    uploadScreen.push(<SimpleTable appContext={self.props.appContext} userId={response.data.userId} />)
                     self.props.appContext.setState({ loginPage: [], uploadScreen: uploadScreen })
                 }
                 else if (response.status == 204) {
@@ -46,7 +46,7 @@ class Login extends Component {
         return (<div>
             <MuiThemeProvider>
                 <div>
-                    <AppBar title="EasyAccounts" />
+                    <AppBar title="Easy Accounts" />
                     <TextField hintText="Enter your Username"
                         floatingLabelText="Email"
                         onChange={(event, newValue) => this.setState({ email: newValue })} />

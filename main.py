@@ -5,6 +5,7 @@ from flask import jsonify
 from flask import flash, request
 from flask_cors import CORS, cross_origin
 from werkzeug import generate_password_hash, check_password_hash
+
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 		
@@ -61,7 +62,7 @@ def login_user():
 			if rv:
 
 				if check_password_hash(rv[1]["user_password"],_password):
-					resp = jsonify('Login successful!')
+					resp = jsonify({'userId':rv[1]["user_id"]})
 					resp.status_code = 200
 				else:
 					resp = jsonify('Unauthorized Login')
@@ -152,14 +153,15 @@ def add_transaction(userid):
 		_category = _json['category']
 		_amt= _json['amt']
 		_date=_json['date']
+		_qty=_json['qty']
 
 		if _txnType and _category and _date and request.method == 'POST':
 			if not _amt:
 				_amt=0.00
 			
 			# Query to add transaction
-			sql = "INSERT INTO tbl_transaction(user_id, txntype, category,amt,date) VALUES(%s, %s, %s,%s,%s)"
-			data = (userid,_txnType,_category,_amt,_date)
+			sql = "INSERT INTO tbl_transaction(user_id, txntype, category,amt,date,qty) VALUES(%s, %s, %s,%s,%s,%s)"
+			data = (userid,_txnType,_category,_amt,_date,_qty)
 			conn = mysql.connect()
 			cursor = conn.cursor()
 			cursor.execute(sql, data)
@@ -202,11 +204,12 @@ def update_txn(userid,txnId):
 		_category = _json['category']
 		_amt= _json['amt']
 		_date=_json['date']	
+		_qty=_json['qty']
 		# validate the received values
 		if userid and txnId and _txnType and _category and _date and request.method == 'PUT':
 			
-			sql = "UPDATE tbl_transaction SET txntype=%s, category=%s, amt=%s,date=%s WHERE user_id=%s and txn_id=%s"
-			data = (_txnType,_category,_amt,_date,userid,txnId)
+			sql = "UPDATE tbl_transaction SET txntype=%s, category=%s, amt=%s,date=%s,qty=%s WHERE user_id=%s and txn_id=%s"
+			data = (_txnType,_category,_amt,_date,_qty,userid,txnId)
 			conn = mysql.connect()
 			cursor = conn.cursor()
 			cursor.execute(sql, data)
@@ -241,7 +244,7 @@ def delete_txn(userid,txnId):
 		cursor.close() 
 		conn.close()
 #Fetch All Transactions
-@app.route('<userid>/transactions')
+@app.route('/<userid>/transactions')
 @cross_origin()
 def transactions(userid):
 	try:
