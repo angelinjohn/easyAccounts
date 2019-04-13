@@ -6,7 +6,6 @@ import App from './App';
 import Login from './Login'
 import Register from './Register'
 import LoginScreen from './LoginScreen'
-import UploadScreen from './UploadScreen'
 import * as serviceWorker from './serviceWorker';
 
 const routing=(
