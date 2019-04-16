@@ -12,6 +12,8 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import RaisedButton from 'material-ui/RaisedButton';
 import TxnPopup from './TxnPopup';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Create from '@material-ui/icons/Create';
 
 const styles = theme => ({
     root: {
@@ -71,6 +73,7 @@ class SimpleTable extends React.Component{
               <TableCell align="right">Transaction Type</TableCell>
               <TableCell align="right">Amount</TableCell>
               <TableCell align="right">Date</TableCell>
+              <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -84,6 +87,7 @@ class SimpleTable extends React.Component{
                 <TableCell align="right">{transaction.txntype}</TableCell>
                 <TableCell align="right">{transaction.amt}</TableCell>
                 <TableCell align="right">{transaction.date}</TableCell>
+                <TableCell align="right"><DeleteIcon /><Create/></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -98,7 +102,7 @@ class SimpleTable extends React.Component{
       </div>
     )
             }
-            
+
   }
   const style = {
     margin: 15,
