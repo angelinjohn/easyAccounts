@@ -13,12 +13,15 @@ import InputBase from '@material-ui/core/InputBase';
 import NativeSelect from '@material-ui/core/NativeSelect';
 
 export default class TxnPopup extends React.Component {
-
-
-  handleClose = () => {
-    this.props.displayPopup=false
-  };
-
+  constructor(props) {
+    super(props);
+    this.state = {
+      category: '',
+      txntype: '',
+      qty:'',
+      amt:''
+    }
+}
   render() {
     return (
       <div>
@@ -39,13 +42,14 @@ export default class TxnPopup extends React.Component {
               margin="dense"
               id="name"
               type="email"
-              fullWidth/>
-          <InputLabel htmlFor="age-customized-native-simple" className={this.props.bootstrapFormLabel}>
+              fullWidth
+              onChange={( event,newValue) => this.setState({ category: newValue })}/>
+          <InputLabel htmlFor="age-customized-native-simple" className={this.props.bootstrapFormLabel}
+          >
             Transaction Type
           </InputLabel><br/>
           <NativeSelect
-            // value={this.state.age}
-            onChange={this.handleChange}
+            onChange={( event,newValue) => this.setState({ txntype: newValue })}
             input={<BootstrapInput name="age" id="age-customized-native-simple" />}
           >
             <option value={0}>Income</option>
@@ -58,23 +62,25 @@ export default class TxnPopup extends React.Component {
               margin="dense"
               id="name"
               type="email"
-              fullWidth/>
+              fullWidth
+              onChange={( event,newValue) => this.setState({ qty: newValue })}/>
             <TextField
               autoFocus
               hintText="Amount"
               floatingLabelText="Amount"
               margin="dense"
               id="name"
-              type="email"/>
+              type="email"
+              onChange={( event,newValue) => this.setState({ amt: newValue })}/>
           </DialogContent>
           <DialogActions>
             <RaisedButton label="Cancel"
                         primary={true}
-                        onClick={(event) => this.handleClose(event)}/>
+                        onClick={() => this.props.closePopup()}/>
              
             <RaisedButton label="Submit"
                         primary={true}
-                        onClick={(event) => this.handleClose(event)}/>
+                        onClick={(event, state) => this.props.onSubmit(event,this.state)}/>
          </DialogActions>
         </Dialog>
         </MuiThemeProvider>

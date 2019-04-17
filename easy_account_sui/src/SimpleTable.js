@@ -32,13 +32,24 @@ class SimpleTable extends React.Component{
      super(props);
      
      this.state={
-        transactions:[]
+        transactions:[],
+        category: '',
+          txntype: '',
+          qty:'',
+          amt:''
             }
-
  }
     handleClick = () => {
     this.setState({ displayPopup: true });
     };
+    closePopup = () => {
+      this.setState({ displayPopup: false });
+      };
+    onSubmit = (event,payload) => {
+      //API to save the payload
+      console.log(payload);
+        this.setState({ displayPopup: false });
+      }
  
 
  componentWillMount(){
@@ -87,7 +98,8 @@ class SimpleTable extends React.Component{
                 <TableCell align="right">{transaction.txntype}</TableCell>
                 <TableCell align="right">{transaction.amt}</TableCell>
                 <TableCell align="right">{transaction.date}</TableCell>
-                <TableCell align="right"><DeleteIcon /><Create/></TableCell>
+                {/* <TableCell align="right"><DeleteIcon onClick={(event) => this.deleteTxn(event,transaction.txn_id, transaction.user_id)}/>
+                <Create onClick={(event) => this.editTxn(event,transaction, transaction.user_id)}/></TableCell> */}
               </TableRow>
             ))}
           </TableBody>
@@ -98,7 +110,7 @@ class SimpleTable extends React.Component{
                     style={style}
                     onClick={(event) => this.handleClick(event)} />
         </MuiThemeProvider>
-        <TxnPopup displayPopup={this.state.displayPopup}></TxnPopup>
+        <TxnPopup displayPopup={this.state.displayPopup} closePopup={() => this.closePopup()} onSubmit={(event,payload) => this.onSubmit(event,payload)}></TxnPopup>
       </div>
     )
             }
