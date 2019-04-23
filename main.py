@@ -2,13 +2,18 @@ import pymysql
 from app import app
 from db_config import mysql
 from flask import jsonify
-from flask import flash, request
+from flask import Flask, request
 from flask_cors import CORS, cross_origin
 from werkzeug import generate_password_hash, check_password_hash
 import simplejson as json
+import numpy as np
 from datetime import datetime
+import pickle
+import model
 
 cors = CORS(app)
+app = Flask(__name__)
+model = pickle.load(open('model.pkl','rb'))
 app.config['CORS_HEADERS'] = 'Content-Type'
 		
 @app.route('/register', methods=['POST'])
@@ -291,13 +296,15 @@ def get_tax(userid):
 		   income=row[1]["sum"]
 		else :
 		   expense=row[1]["sum"]
-		print(income)
-		print(expense)
-		resp = jsonify(row)
-		resp.status_code = 200
 		cursor.execute("SELECT tax_limit,tax_percentage FROM tbl_statetax s join tbl_user u on s.state_id=u.state where u.user_id=%s;",userid)
 		row=cursor.fetchall()
-		print(row)
+		tax_limit=row[0]["tax_limit"]
+		tax_percent=row[0]["tax_percentage"]
+		tax_payable=calc_tax(income,expense,tax_limit,tax_percent)
+		print("tax payable")
+		print(tax_payable)
+		resp = jsonify({"tax":tax_payable})
+		resp.status_code = 200
 		return resp
 	except Exception as e:
 		print(e)
@@ -305,6 +312,14 @@ def get_tax(userid):
 		cursor.close() 
 		conn.close()
 
+def calc_tax(income,expense,tax_limit,tax_percent):
+	profit = income-expense
+	tax = 0
+	if profit > tax_limit:
+		tax=tax_percent/100*profit
+	return tax
+	
+	   
 # Get
 @app.route('/<userid>/predict', methods=['GET'])
 @cross_origin()
@@ -312,11 +327,15 @@ def predict_tax(userid):
 	try:
 		conn = mysql.connect()
 		cursor = conn.cursor(pymysql.cursors.DictCursor)
-		print(userid)
-		print(txnId)
-		cursor.execute("SELECT * FROM tbl_user WHERE user_id=%s AND txn_id=%s", id)
+		cursor.execute("SELECT * FROM tbl_user WHERE user_id=%s", id)
 		row = cursor.fetchone()
 		resp = jsonify(row)
+		# Make prediction using model loaded from disk as per the data.
+        print("Reached near prediction")
+		prediction = model.predict([[1.8]])
+        # Take the first value of prediction
+        
+		output = prediction[0]
 		resp.status_code = 200
 		return resp
 	except Exception as e:
@@ -337,4 +356,4 @@ def not_found(error=None):
     return resp
 		
 if __name__ == "__main__":
-    app.run()
+    app.run(port=5000,debug=True)
