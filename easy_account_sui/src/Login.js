@@ -52,6 +52,7 @@ class Login extends Component {
                         onChange={(event, newValue) => this.setState({ email: newValue })} />
                     <br />
                     <TextField hintText="Enter password"
+                    type='password'
                         floatingLabelText="Password"
                         onChange={(event, newValue) => this.setState({ password: newValue })} />
                     <br />

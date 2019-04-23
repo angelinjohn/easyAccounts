@@ -17,7 +17,7 @@ export default class TxnPopup extends React.Component {
     super(props);
     this.state = {
       category: '',
-      txntype: '',
+      txntype: '0',
       qty:'',
       amt:''
     }
@@ -49,8 +49,8 @@ export default class TxnPopup extends React.Component {
             Transaction Type
           </InputLabel><br/>
           <NativeSelect
-            onChange={( event,newValue) => this.setState({ txntype: newValue })}
-            input={<BootstrapInput name="age" id="age-customized-native-simple" />}
+            onChange={( event,txntype) => this.setState({ txntype: event.target.value })}
+            input={<BootstrapInput name="txntype" id="age-customized-native-simple" />}
           >
             <option value={0}>Income</option>
             <option value={1}>Expense</option>

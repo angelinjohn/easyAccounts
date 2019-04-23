@@ -5,6 +5,8 @@ from flask import jsonify
 from flask import flash, request
 from flask_cors import CORS, cross_origin
 from werkzeug import generate_password_hash, check_password_hash
+import simplejson as json
+from datetime import datetime
 
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -35,9 +37,6 @@ def add_user():
 			return not_found()
 	except Exception as e:
 		print(e)
-	finally:
-		cursor.close() 
-		conn.close()
 
 @app.route('/login', methods=['POST'])
 @cross_origin()
@@ -49,6 +48,7 @@ def login_user():
 		# validate the received values
 		if _email and _password and request.method == 'POST':
 			#do not save password as a plain text
+			print(_email)
 			_hashed_password = generate_password_hash(_password)
 			# save edits
 			sql = """SELECT * FROM tbl_user WHERE user_email=%s"""
@@ -57,12 +57,16 @@ def login_user():
 			cursor = conn.cursor(pymysql.cursors.DictCursor)
 			cursor.execute(sql, data)
 			rv = cursor.fetchall()
+			print(rv)
+			print(rv[0])
+			# print(rv[1])
+			# print(rv[0]["user_id"])
 			resp = jsonify('Login !')
 			
 			if rv:
 
-				if check_password_hash(rv[1]["user_password"],_password):
-					resp = jsonify({'userId':rv[1]["user_id"]})
+				if check_password_hash(rv[0]["user_password"],_password):
+					resp = jsonify({'userId':rv[0]["user_id"]})
 					resp.status_code = 200
 				else:
 					resp = jsonify('Unauthorized Login')
@@ -148,29 +152,30 @@ def update_user():
 @cross_origin()
 def add_transaction(userid):
 	try:
+		print("hit the method")
 		_json = request.json
-		_txnType = _json['txnType']
+		_txnType = _json['txntype']
 		_category = _json['category']
 		_amt= _json['amt']
-		_date=_json['date']
+		_date= datetime.date(datetime.now())
+		print(_date)
 		_qty=_json['qty']
 
+        
+		
 		if _txnType and _category and _date and request.method == 'POST':
 			if not _amt:
 				_amt=0.00
-			
+			print("Reached query")
 			# Query to add transaction
 			sql = "INSERT INTO tbl_transaction(user_id, txntype, category,amt,date,qty) VALUES(%s, %s, %s,%s,%s,%s)"
 			data = (userid,_txnType,_category,_amt,_date,_qty)
 			conn = mysql.connect()
 			cursor = conn.cursor()
-			cursor.execute(sql, data)
+			print(cursor.execute(sql, data))
 			conn.commit()
-			print("Last inserted record has id ", cursor.lastrowid())
-			resp = jsonify('Transaction added successfully!')
-			resp.status_code = 200
-			return resp
-			#return get_transaction(userid,cursor.lastrowid())
+			print("Last inserted record has id ",cursor.lastrowid)
+			return transactions(userid)
 		else:
 			return not_found()
 	except Exception as e:
@@ -183,7 +188,9 @@ def get_transaction(userid,txnId):
 	try:
 		conn = mysql.connect()
 		cursor = conn.cursor(pymysql.cursors.DictCursor)
-		cursor.execute("SELECT * FROM tbl_user WHERE user_id=%s AND txn_id=%s", id)
+		print(userid)
+		print(txnId)
+		cursor.execute("SELECT * FROM tbl_user WHERE user_id=%s AND txn_id=%s", (userid,txnId))
 		row = cursor.fetchone()
 		resp = jsonify(row)
 		resp.status_code = 200
@@ -253,17 +260,71 @@ def transactions(userid):
 		cursor.execute("SELECT * FROM tbl_transaction where user_id=%s",(userid))
 		rows = cursor.fetchall()
 
-		resp = jsonify(rows)
+		resp = json.dumps(rows)
 		print(rows)
-		resp.status_code = 200
 		return resp
 	except Exception as e:
 		print(e)
 	finally:
 		cursor.close() 
 		conn.close()	
+#Calculate Tax
+@app.route('/<userid>/tax', methods=['GET'])
+@cross_origin()
+def get_tax(userid):
+	a=10
+	try:
+		conn = mysql.connect()
+		cursor = conn.cursor(pymysql.cursors.DictCursor)
+		print(userid)
+		cursor.execute("SELECT txntype,sum(amt) as sum FROM test.tbl_transaction  where user_id=%s group by txntype;", userid)
+		row = cursor.fetchall()
+		print("tax output")
+		#txntype -1 Expense
+		#txntype -0 Income
+		income=expense=0
+		if row[0]["txntype"] == 0:
+		   income=row[0]["sum"]
+		else :
+		   expense=row[0]["sum"]
+		if row[1]["txntype"] == 0:
+		   income=row[1]["sum"]
+		else :
+		   expense=row[1]["sum"]
+		print(income)
+		print(expense)
+		resp = jsonify(row)
+		resp.status_code = 200
+		cursor.execute("SELECT tax_limit,tax_percentage FROM tbl_statetax s join tbl_user u on s.state_id=u.state where u.user_id=%s;",userid)
+		row=cursor.fetchall()
+		print(row)
+		return resp
+	except Exception as e:
+		print(e)
+	finally:
+		cursor.close() 
+		conn.close()
 
-		
+# Get
+@app.route('/<userid>/predict', methods=['GET'])
+@cross_origin()
+def predict_tax(userid):
+	try:
+		conn = mysql.connect()
+		cursor = conn.cursor(pymysql.cursors.DictCursor)
+		print(userid)
+		print(txnId)
+		cursor.execute("SELECT * FROM tbl_user WHERE user_id=%s AND txn_id=%s", id)
+		row = cursor.fetchone()
+		resp = jsonify(row)
+		resp.status_code = 200
+		return resp
+	except Exception as e:
+		print(e)
+	finally:
+		cursor.close() 
+		conn.close()
+
 @app.errorhandler(404)
 def not_found(error=None):
     message = {

@@ -14,7 +14,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TxnPopup from './TxnPopup';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Create from '@material-ui/icons/Create';
-
+var apiBaseUrl = "http://localhost:5000/";
 const styles = theme => ({
     root: {
       width: '100%',
@@ -39,7 +39,7 @@ class SimpleTable extends React.Component{
           amt:''
             }
  }
-    handleClick = () => {
+ displayPopup = () => {
     this.setState({ displayPopup: true });
     };
     closePopup = () => {
@@ -47,6 +47,18 @@ class SimpleTable extends React.Component{
       };
     onSubmit = (event,payload) => {
       //API to save the payload
+      var self = this;
+      debugger;
+      axios.post(apiBaseUrl +this.props.userId + '/transaction', payload)
+            .then(function (response) {
+            
+              if (response.status == 200) {
+                self.setState({
+                    transactions: response.data
+                })
+              }
+            
+            })
       console.log(payload);
         this.setState({ displayPopup: false });
       }
@@ -54,7 +66,7 @@ class SimpleTable extends React.Component{
 
  componentWillMount(){
     console.log(this.props);
-    var apiBaseUrl = "http://localhost:5000/";
+   
       var self=this;
     axios.get(apiBaseUrl+this.props.userId + '/transactions')
         .then(function (response) {
@@ -95,7 +107,7 @@ class SimpleTable extends React.Component{
                 </TableCell>
                 <TableCell align="right">{transaction.category}</TableCell>
                 <TableCell align="right">{transaction.qty}</TableCell>
-                <TableCell align="right">{transaction.txntype}</TableCell>
+                <TableCell align="right">{transaction.txntype == 0?"Income":"Expense"}</TableCell>
                 <TableCell align="right">{transaction.amt}</TableCell>
                 <TableCell align="right">{transaction.date}</TableCell>
                 {/* <TableCell align="right"><DeleteIcon onClick={(event) => this.deleteTxn(event,transaction.txn_id, transaction.user_id)}/>
@@ -106,6 +118,10 @@ class SimpleTable extends React.Component{
         </Table>
       </Paper>
       <RaisedButton label="+ Add Transaction"
+                    primary={true}
+                    style={style}
+                    onClick={(event) => this.displayPopup(event)} />
+                    <RaisedButton label="Calculate your tax"
                     primary={true}
                     style={style}
                     onClick={(event) => this.handleClick(event)} />
