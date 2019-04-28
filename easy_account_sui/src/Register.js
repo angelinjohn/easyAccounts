@@ -13,7 +13,11 @@ class Register extends Component {
       first_name:'',
       last_name:'',
       email:'',
-      password:''
+      password:'',
+      state:'',
+      city:'',
+      dependents:'',
+      cuisine:'',
     }
   }
   handleClick(event){
@@ -24,7 +28,11 @@ class Register extends Component {
     var payload={
     "name": this.state.first_name+" "+this.state.last_name,
     "email":this.state.email,
-    "password":this.state.password
+    "password":this.state.password,
+    "state": this.state.state,
+    "city": this.state.city,
+    "dependents": this.state.dependents,
+    "cuisine": this.state.cuisine,
     }
     axios.defaults.headers.post['Content-Type'] ='application/x-www-form-urlencoded';
     axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
@@ -60,7 +68,7 @@ class Register extends Component {
              floatingLabelText="First Name"
              onChange = {(event,newValue) => this.setState({first_name:newValue})}
              />
-           <br/>
+           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
            <TextField
              hintText="Enter your Last Name"
              floatingLabelText="Last Name"
@@ -73,12 +81,36 @@ class Register extends Component {
              floatingLabelText="Email"
              onChange = {(event,newValue) => this.setState({email:newValue})}
              />
-           <br/>
+           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
            <TextField
              type = "password"
              hintText="Enter your Password"
              floatingLabelText="Password"
              onChange = {(event,newValue) => this.setState({password:newValue})}
+             />
+           <br/>
+           <TextField
+             hintText="Enter your state"
+             floatingLabelText="State"
+             onChange = {(event,newValue) => this.setState({state:newValue})}
+             />
+           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+           <TextField
+             hintText="Enter your city"
+             floatingLabelText="City"
+             onChange = {(event,newValue) => this.setState({city:newValue})}
+             />
+           <br/>
+           <TextField
+             hintText="Do you have any dependents"
+             floatingLabelText="Dependents"
+             onChange = {(event,newValue) => this.setState({dependents:newValue})}
+             />
+           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+           <TextField
+             hintText="Enter your preferred cuisine"
+             floatingLabelText="Cuisine"
+             onChange = {(event,newValue) => this.setState({cuisine:newValue})}
              />
            <br/>
            <RaisedButton label="Submit" primary={true} style={style} onClick={(event) => this.handleClick(event)}/>

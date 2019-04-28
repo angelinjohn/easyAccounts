@@ -12,7 +12,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import RaisedButton from 'material-ui/RaisedButton';
 import TxnPopup from './TxnPopup';
-import Map from './Map';
+import Tax from './Tax';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Create from '@material-ui/icons/Create';
 var apiBaseUrl = "http://localhost:5000/";
@@ -63,32 +63,16 @@ class SimpleTable extends React.Component{
       console.log(payload);
         this.setState({ displayPopup: false });
       }
-
-      showRanking = () => {
-// return <Map/>
-      }
  
       calculateTax = () => {
         var apiBaseUrl = "http://localhost:5000/";
-        var tax;
         axios.get(apiBaseUrl+this.props.userId + '/tax')
          .then(function (response) {
-            tax= response;
             var self = this;
             var uploadScreen = [];
-            uploadScreen.push(<div>
-              <MuiThemeProvider>
-          <AppBar title="Tax"/><div style={{padding:'100px'}}appContext={self.props.appContext} userId={this.props.userId}>Hey! We have calculated your tax to be ${tax}</div>
-          <RaisedButton label="Do you want to explore better options ?"
-                    primary={true}
-                    style={style}
-                    onClick={(event) => this.showRanking(event)} />
-                    </MuiThemeProvider></div>)
-            self.props.appContext.setState({ loginPage: [], uploadScreen: uploadScreen })
+            uploadScreen.push(<Tax appContext={self.props.appContext} userId={this.props.userId} tax={response.data.tax}/>)
+                    self.props.appContext.setState({ loginPage: [], uploadScreen: uploadScreen })
         })
-        .catch(function (error) {
-            console.log(error);
-        });
       }
  componentWillMount(){
     console.log(this.props);
