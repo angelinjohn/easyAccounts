@@ -9,11 +9,11 @@ import simplejson as json
 import numpy as np
 from datetime import datetime
 import pickle
-import model
+#import model
 
 cors = CORS(app)
 app = Flask(__name__)
-model = pickle.load(open('model.pkl','rb'))
+#model = pickle.load(open('model.pkl','rb'))
 app.config['CORS_HEADERS'] = 'Content-Type'
 		
 @app.route('/register', methods=['POST'])
@@ -32,10 +32,16 @@ def add_user():
 			sql = "INSERT INTO tbl_user(user_name, user_email, user_password) VALUES(%s, %s, %s)"
 			data = (_name, _email, _hashed_password,)
 			conn = mysql.connect()
-			cursor = conn.cursor()
+			cursor = conn.cursor(pymysql.cursors.DictCursor)
 			cursor.execute(sql, data)
 			conn.commit()
-			resp = jsonify('User added successfully!')
+			sql = """SELECT * FROM tbl_user WHERE user_email=%s"""
+			data=_email
+			cursor.execute(sql, data)
+			rv = cursor.fetchall()
+			print(rv)
+			print(rv[0])
+			resp = jsonify({'userId':rv[0]["user_id"]})
 			resp.status_code = 200
 			return resp
 		else:
@@ -331,7 +337,7 @@ def predict_tax(userid):
 		row = cursor.fetchone()
 		resp = jsonify(row)
 		# Make prediction using model loaded from disk as per the data.
-        print("Reached near prediction")
+		print("Reached near prediction")
 		prediction = model.predict([[1.8]])
         # Take the first value of prediction
         

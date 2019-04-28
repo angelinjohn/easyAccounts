@@ -65,13 +65,13 @@ class SimpleTable extends React.Component{
       }
  
       calculateTax = () => {
+        var self = this;
         var apiBaseUrl = "http://localhost:5000/";
         axios.get(apiBaseUrl+this.props.userId + '/tax')
          .then(function (response) {
-            var self = this;
             var tax = parseFloat(response.data.tax).toFixed(2);
             var uploadScreen = [];
-            uploadScreen.push(<Tax appContext={self.props.appContext} userId={this.props.userId} tax={tax}/>)
+            uploadScreen.push(<Tax appContext={self.props.appContext} userId={self.props.userId} tax={tax}/>)
                     self.props.appContext.setState({ loginPage: [], uploadScreen: uploadScreen })
         })
       }

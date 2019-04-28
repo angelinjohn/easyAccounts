@@ -15,12 +15,12 @@ class ShowStates extends React.Component {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          <DialogTitle id="alert-dialog-title">{"See yout better options!!"}</DialogTitle>
+          <DialogTitle id="alert-dialog-title">{"See your better options!!"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               <div>* Arizona</div>
               <div>* Alabama</div>
-              <div>* Newyork</div>
+              <div>* California</div>
             </DialogContentText>
           </DialogContent>
           <DialogActions>
