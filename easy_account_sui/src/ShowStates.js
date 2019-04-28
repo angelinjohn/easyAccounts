@@ -18,9 +18,9 @@ class ShowStates extends React.Component {
           <DialogTitle id="alert-dialog-title">{"See your better options!!"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              <div>* Arizona</div>
-              <div>* Alabama</div>
-              <div>* California</div>
+              <div><b>1. Arizona</b></div>
+              <div><b>2. Alabama</b></div>
+              <div><b>3. California</b></div>
             </DialogContentText>
           </DialogContent>
           <DialogActions>

@@ -9,11 +9,11 @@ import simplejson as json
 import numpy as np
 from datetime import datetime
 import pickle
-#import model
+import model
 
 cors = CORS(app)
 app = Flask(__name__)
-#model = pickle.load(open('model.pkl','rb'))
+model = pickle.load(open('model.pkl','rb'))
 app.config['CORS_HEADERS'] = 'Content-Type'
 		
 @app.route('/register', methods=['POST'])
