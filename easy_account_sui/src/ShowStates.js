@@ -8,6 +8,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 class ShowStates extends React.Component {
   render() {
+
+    const states=this.props.states.map((item, key) =>
+        <li key={item.id}>{item}</li>
+    );
+
     return (
       <div>
         <Dialog
@@ -18,9 +23,9 @@ class ShowStates extends React.Component {
           <DialogTitle id="alert-dialog-title">{"See yout better options!!"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              <div>* Arizona</div>
-              <div>* Alabama</div>
-              <div>* Newyork</div>
+            <ul>
+                {states}
+            </ul>
             </DialogContentText>
           </DialogContent>
           <DialogActions>
