@@ -4,68 +4,55 @@ import numpy as np
 # manipulate csv
 import pandas as pd
 import pickle
-
-# Visualization
-import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
 
 from sklearn.model_selection import train_test_split
 # recursive feature elimination for 
 from sklearn.feature_selection import RFE
-tax_data = pd.read_csv('taxDetails.csv')
-tax_data.head()
-corr= tax_data.corr()
-sns.heatmap(corr)
+df_tax_data = pd.read_csv('tax_data.csv')
+#One hot encoding of Y-values
+y= df_tax_data['STATE_x']
+label_encoder = LabelEncoder()
+integer_encoded = label_encoder.fit_transform(y)
+# print('Label encoded value',integer_encoded)
+onehot_encoder = OneHotEncoder(sparse=False)
+integer_encoded = integer_encoded.reshape(-1, 1)
 
-#Correlation with output variable
-cor = tax_data.corr()
-cor_target = abs(cor["A09400"])
-#Selecting highly correlated features
-relevant_features = cor_target[cor_target>0.8]
-selected_features_list=relevant_features.keys()
-filtered_data=tax_data[selected_features_list]
-tax=filtered_data["A09400"].values
-features=filtered_data.drop("A09400",1) 
+onehot_encoded = onehot_encoder.fit_transform(integer_encoded)
+print('One hot encoded', onehot_encoded)
+df_train_x = df_tax_data.drop(["STATE_x"],1) 
+df_train_y = onehot_encoded
 
+X_train, X_test, y_train, y_test = train_test_split(df_train_x, df_train_y, test_size=0.2)
+print('Train shape', X_train.shape)
+print('Test shape', X_test.shape)
 
-from sklearn.preprocessing import  MinMaxScaler
-sc= MinMaxScaler()
-X= sc.fit_transform(features)
-y= tax.reshape(-1,1)
-y=sc.fit_transform(y)
-
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-print(X_test.shape[0])
-print(X_train.shape[0])
+print('Output', y_test.shape )
 
 from keras import Sequential
 from keras.layers import Dense
-def build_regressor():
-    regressor = Sequential()
-    # The Input Layer :
-    regressor.add(Dense(128, kernel_initializer='normal',input_dim = X_train.shape[1], activation='relu'))
 
-    # The Hidden Layers :
-    regressor.add(Dense(256, kernel_initializer='normal',activation='relu'))
-    regressor.add(Dense(256, kernel_initializer='normal',activation='relu'))
-    regressor.add(Dense(256, kernel_initializer='normal',activation='relu'))
+model = Sequential()
+# The Input Layer :
+model.add(Dense(128, input_dim = X_train.shape[1], activation='relu'))
 
-    # The Output Layer :
-    regressor.add(Dense(1, kernel_initializer='normal',activation='linear'))
+# The Hidden Layers :
+model.add(Dense(256, activation='relu'))
+model.add(Dense(256, activation='relu'))
+#     model.add(Dense(256, kernel_initializer='normal',activation='relu'))
 
-    regressor.compile(optimizer='adam', loss='mean_squared_error',  metrics=['mean_absolute_error'])
-    return regressor
+# The Output Layer :
+model.add(Dense(51, activation='softmax'))
 
-from keras.wrappers.scikit_learn import KerasRegressor
-regressor = KerasRegressor(build_fn=build_regressor, batch_size=32,epochs=10)
-build_regressor().summary()
+model.compile(optimizer='adam', loss='categorical_crossentropy')
+model.summary()
 
-results=regressor.fit(X_train,y_train)
+model.fit(X_train, y_train, epochs=10)
 
-y_pred= regressor.predict(X_test)
+y_pred= model.predict(X_test)
+print(y_pred)
+y_pred.shape
+y_test.shape
 
-pickle.dump(regressor, open('model.pkl','wb'))
-
-# Loading model to compare the results
-model = pickle.load(open('model.pkl','rb'))
-#print(model.predict([[1.8]]))
+pickle.dump(model, open('model.pkl','wb'))
